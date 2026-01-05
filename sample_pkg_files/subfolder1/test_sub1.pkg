@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <TESTSCRIPT-ID xsi:type="string">TS-SUB1-001</TESTSCRIPT-ID>
+    <Name>Subfolder Test Package</Name>
+    <Description>Test package in subfolder1</Description>
+    <Version>1.0</Version>
+</TestPackage>

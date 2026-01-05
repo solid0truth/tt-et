@@ -4,7 +4,8 @@ A Windows Explorer-like Python application for managing and processing XML-based
 
 ## Features
 
-- **File Explorer Interface**: Browse directories and view only `.pkg` files
+- **File Explorer Interface**: Browse directories with subfolder navigation
+- **Subfolder Support**: View and navigate through folder hierarchies, with .pkg file counts shown for each folder
 - **TESTSCRIPT-ID Display**: Automatically extracts and displays `<TESTSCRIPT-ID>` values from XML files
 - **Remove TESTSCRIPT-ID Content**: Batch operation to clear content from `<TESTSCRIPT-ID>` tags
 - **File Operations**: Copy, cut, and paste files with keyboard shortcuts
@@ -43,10 +44,13 @@ chmod +x pkg_file_explorer.py
 1. **Browse Directories**:
    - Click "Browse..." button to select a directory containing `.pkg` files
    - Double-click ".." to navigate to parent directory
+   - Double-click any folder to navigate into it
 
-2. **View Files**:
-   - The file list shows all `.pkg` files in the current directory
+2. **View Files and Folders**:
+   - Folders are shown first with a 📁 icon and the count of .pkg files they contain
+   - .pkg files are shown below folders with a 📄 icon
    - The "TESTSCRIPT-ID" column displays the value from each file's XML
+   - The status bar shows the count of folders and .pkg files in the current directory
 
 3. **Select Files**:
    - Click to select a single file
@@ -75,17 +79,24 @@ chmod +x pkg_file_explorer.py
 
 Sample `.pkg` files are provided in the `sample_pkg_files/` directory for testing:
 
+**Root level:**
 - `test_script_1.pkg` - Basic test package with TESTSCRIPT-ID: TS-2024-001
 - `test_script_2.pkg` - Test package with TESTSCRIPT-ID: TS-2024-002
 - `test_script_3.pkg` - Test package with TESTSCRIPT-ID: TS-2024-003
 - `empty_testscript.pkg` - Package with empty TESTSCRIPT-ID
 
+**Subfolders:**
+- `subfolder1/test_sub1.pkg` - Test package with TESTSCRIPT-ID: TS-SUB1-001
+- `subfolder2/test_sub2.pkg` - Test package with TESTSCRIPT-ID: TS-SUB2-001
+- `subfolder2/nested/test_nested.pkg` - Test package with TESTSCRIPT-ID: TS-NESTED-001
+
 To test the application:
 1. Run the application
 2. Browse to the `sample_pkg_files/` directory
 3. View the TESTSCRIPT-ID values in the file list
-4. Test the remove TESTSCRIPT-ID feature on one or more files
-5. Test copy/cut/paste operations
+4. Double-click on folders to navigate into subfolders
+5. Test the remove TESTSCRIPT-ID feature on one or more files
+6. Test copy/cut/paste operations across different folders
 
 ## File Structure
 
@@ -98,7 +109,13 @@ To test the application:
     ├── test_script_1.pkg
     ├── test_script_2.pkg
     ├── test_script_3.pkg
-    └── empty_testscript.pkg
+    ├── empty_testscript.pkg
+    ├── subfolder1/
+    │   └── test_sub1.pkg
+    └── subfolder2/
+        ├── test_sub2.pkg
+        └── nested/
+            └── test_nested.pkg
 ```
 
 ## Technical Details

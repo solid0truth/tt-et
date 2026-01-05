@@ -133,7 +133,7 @@ class PKGFileExplorer:
         self.root.bind("<F5>", lambda e: self.refresh())
 
     def load_directory(self, directory: str):
-        """Load .pkg files from directory"""
+        """Load subdirectories and .pkg files from directory"""
         self.current_dir = directory
         self.dir_label.config(text=directory)
 
@@ -146,9 +146,54 @@ class PKGFileExplorer:
             if directory != "/":
                 self.tree.insert("", "end", text="📁", values=("..", "", "", ""), tags=("parent",))
 
-            # List all .pkg files
-            pkg_files = sorted([f for f in os.listdir(directory) if f.endswith('.pkg')])
+            # Get all items in directory
+            all_items = os.listdir(directory)
 
+            # Separate directories and .pkg files
+            directories = []
+            pkg_files = []
+
+            for item in all_items:
+                item_path = os.path.join(directory, item)
+                if os.path.isdir(item_path):
+                    directories.append(item)
+                elif item.endswith('.pkg'):
+                    pkg_files.append(item)
+
+            # Sort both lists
+            directories.sort()
+            pkg_files.sort()
+
+            # Add directories first
+            for dirname in directories:
+                dirpath = os.path.join(directory, dirname)
+                try:
+                    stat_info = os.stat(dirpath)
+                    modified = self.format_time(stat_info.st_mtime)
+
+                    # Count .pkg files in subdirectory
+                    try:
+                        pkg_count = len([f for f in os.listdir(dirpath) if f.endswith('.pkg')])
+                        pkg_info = f"({pkg_count} .pkg files)" if pkg_count > 0 else ""
+                    except:
+                        pkg_info = ""
+
+                    self.tree.insert(
+                        "", "end",
+                        text="📁",
+                        values=(dirname, pkg_info, "<DIR>", modified),
+                        tags=("folder",)
+                    )
+                except Exception as e:
+                    # If error reading directory, still show it
+                    self.tree.insert(
+                        "", "end",
+                        text="📁",
+                        values=(dirname, "", "<DIR>", ""),
+                        tags=("folder",)
+                    )
+
+            # Then add .pkg files
             for filename in pkg_files:
                 filepath = os.path.join(directory, filename)
 
@@ -177,7 +222,7 @@ class PKGFileExplorer:
                         tags=("file",)
                     )
 
-            self.status_bar.config(text=f"Loaded {len(pkg_files)} .pkg files from {directory}")
+            self.status_bar.config(text=f"Loaded {len(directories)} folders and {len(pkg_files)} .pkg files from {directory}")
 
         except PermissionError:
             messagebox.showerror("Error", f"Permission denied: {directory}")
@@ -236,11 +281,18 @@ class PKGFileExplorer:
 
         item = selection[0]
         values = self.tree.item(item, "values")
+        tags = self.tree.item(item, "tags")
 
         if values and values[0] == "..":
             # Navigate to parent directory
             parent_dir = os.path.dirname(self.current_dir)
             self.load_directory(parent_dir)
+        elif "folder" in tags:
+            # Navigate into subdirectory
+            folder_name = values[0]
+            folder_path = os.path.join(self.current_dir, folder_name)
+            if os.path.isdir(folder_path):
+                self.load_directory(folder_path)
 
     def show_context_menu(self, event):
         """Show context menu"""

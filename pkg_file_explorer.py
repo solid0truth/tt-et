@@ -64,8 +64,10 @@ class PKGFileExplorer:
         self.dir_label = ttk.Label(toolbar, text="", relief=tk.SUNKEN)
         self.dir_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
 
-        ttk.Button(toolbar, text="Browse...", command=self.change_directory).pack(side=tk.LEFT, padx=5)
-        ttk.Button(toolbar, text="Refresh", command=self.refresh).pack(side=tk.LEFT, padx=5)
+        ttk.Button(toolbar, text="↑ Up", command=self.navigate_up).pack(side=tk.LEFT, padx=2)
+        ttk.Button(toolbar, text="Browse...", command=self.change_directory).pack(side=tk.LEFT, padx=2)
+        ttk.Button(toolbar, text="Refresh", command=self.refresh).pack(side=tk.LEFT, padx=2)
+        ttk.Button(toolbar, text="Remove TESTSCRIPT-ID", command=self.remove_testscript_id).pack(side=tk.LEFT, padx=2)
 
         # Main frame
         main_frame = ttk.Frame(self.root)
@@ -131,6 +133,8 @@ class PKGFileExplorer:
         self.root.bind("<Control-x>", lambda e: self.cut_files())
         self.root.bind("<Control-v>", lambda e: self.paste_files())
         self.root.bind("<F5>", lambda e: self.refresh())
+        self.root.bind("<BackSpace>", lambda e: self.navigate_up())
+        self.root.bind("<Alt-Up>", lambda e: self.navigate_up())
 
     def load_directory(self, directory: str):
         """Load subdirectories and .pkg files from directory"""
@@ -272,6 +276,15 @@ class PKGFileExplorer:
     def refresh(self):
         """Refresh current directory"""
         self.load_directory(self.current_dir)
+
+    def navigate_up(self):
+        """Navigate to parent directory"""
+        parent_dir = os.path.dirname(self.current_dir)
+        # Only navigate up if we're not at the root
+        if parent_dir != self.current_dir:
+            self.load_directory(parent_dir)
+        else:
+            self.status_bar.config(text="Already at root directory")
 
     def on_double_click(self, event):
         """Handle double-click on tree item"""

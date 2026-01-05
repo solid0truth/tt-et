@@ -43,6 +43,7 @@ chmod +x pkg_file_explorer.py
 
 1. **Browse Directories**:
    - Click "Browse..." button to select a directory containing `.pkg` files
+   - Click "↑ Up" button or press Backspace/Alt+Up to navigate to parent directory
    - Double-click ".." to navigate to parent directory
    - Double-click any folder to navigate into it
 
@@ -64,7 +65,9 @@ chmod +x pkg_file_explorer.py
 
 5. **Remove TESTSCRIPT-ID Content**:
    - Select one or more `.pkg` files
-   - Go to Tools → Remove TESTSCRIPT-ID Content (or right-click → Remove TESTSCRIPT-ID)
+   - Click the "Remove TESTSCRIPT-ID" toolbar button, or
+   - Use Tools menu → Remove TESTSCRIPT-ID Content, or
+   - Right-click → Remove TESTSCRIPT-ID
    - Confirm the operation
    - The content inside `<TESTSCRIPT-ID>` tags will be cleared (tags remain)
 
@@ -74,6 +77,14 @@ chmod +x pkg_file_explorer.py
 - `Ctrl+X`: Cut selected files
 - `Ctrl+V`: Paste files
 - `F5`: Refresh current directory
+- `Backspace` or `Alt+Up`: Navigate to parent directory
+
+### Toolbar Buttons
+
+- **↑ Up**: Navigate to parent directory
+- **Browse...**: Open directory browser to select a different folder
+- **Refresh**: Reload the current directory contents
+- **Remove TESTSCRIPT-ID**: Clear TESTSCRIPT-ID content from selected files
 
 ## Testing
 

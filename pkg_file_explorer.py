@@ -22,6 +22,9 @@ class PKGFileExplorer:
         self.clipboard: List[str] = []
         self.clipboard_operation = None  # 'copy' or 'cut'
 
+        # Undo history for TESTSCRIPT-ID removal
+        self.undo_history: List[Dict[str, str]] = []  # List of {filepath: original_content}
+
         # Current directory
         self.current_dir = os.path.expanduser("~")
 
@@ -68,6 +71,8 @@ class PKGFileExplorer:
         ttk.Button(toolbar, text="Browse...", command=self.change_directory).pack(side=tk.LEFT, padx=2)
         ttk.Button(toolbar, text="Refresh", command=self.refresh).pack(side=tk.LEFT, padx=2)
         ttk.Button(toolbar, text="Remove TESTSCRIPT-ID", command=self.remove_testscript_id).pack(side=tk.LEFT, padx=2)
+        self.undo_button = ttk.Button(toolbar, text="↶ Undo", command=self.undo, state=tk.DISABLED)
+        self.undo_button.pack(side=tk.LEFT, padx=2)
 
         # Main frame
         main_frame = ttk.Frame(self.root)
@@ -132,6 +137,7 @@ class PKGFileExplorer:
         self.root.bind("<Control-c>", lambda e: self.copy_files())
         self.root.bind("<Control-x>", lambda e: self.cut_files())
         self.root.bind("<Control-v>", lambda e: self.paste_files())
+        self.root.bind("<Control-z>", lambda e: self.undo())
         self.root.bind("<F5>", lambda e: self.refresh())
         self.root.bind("<BackSpace>", lambda e: self.navigate_up())
         self.root.bind("<Alt-Up>", lambda e: self.navigate_up())
@@ -396,24 +402,20 @@ class PKGFileExplorer:
         files = self.get_selected_files()
 
         if not files:
-            messagebox.showwarning("Warning", "No files selected")
+            self.status_bar.config(text="No files selected")
             return
 
-        # Confirm action
-        response = messagebox.askyesno(
-            "Confirm",
-            f"Remove TESTSCRIPT-ID content from {len(files)} file(s)?\n\n"
-            "This will empty the <TESTSCRIPT-ID> tags but keep the tags themselves."
-        )
-
-        if not response:
-            return
-
+        # Store original content for undo
+        undo_data = {}
         success_count = 0
         error_count = 0
 
         for filepath in files:
             try:
+                # Read original content
+                with open(filepath, 'rb') as f:
+                    original_content = f.read()
+
                 # Parse XML
                 tree = etree.parse(filepath)
                 root = tree.getroot()
@@ -424,6 +426,9 @@ class PKGFileExplorer:
                 )
 
                 if testscript_elements:
+                    # Save original content for this file
+                    undo_data[filepath] = original_content
+
                     for element in testscript_elements:
                         # Clear the text content
                         element.text = ""
@@ -443,13 +448,48 @@ class PKGFileExplorer:
                 error_count += 1
                 print(f"Error processing {filepath}: {str(e)}")
 
-        # Show results
-        message = f"Successfully processed {success_count} file(s)"
-        if error_count > 0:
-            message += f"\nFailed to process {error_count} file(s)"
+        # Save undo data if we made changes
+        if undo_data:
+            self.undo_history.append(undo_data)
+            self.undo_button.config(state=tk.NORMAL)
 
-        messagebox.showinfo("Results", message)
-        self.status_bar.config(text=f"Removed TESTSCRIPT-ID from {success_count} file(s)")
+        # Update status bar
+        if success_count > 0:
+            self.status_bar.config(text=f"Removed TESTSCRIPT-ID from {success_count} file(s). Press Ctrl+Z to undo.")
+        else:
+            self.status_bar.config(text=f"No TESTSCRIPT-ID found in selected files")
+
+        # Refresh view
+        self.refresh()
+
+    def undo(self):
+        """Undo the last TESTSCRIPT-ID removal operation"""
+        if not self.undo_history:
+            self.status_bar.config(text="Nothing to undo")
+            return
+
+        # Get the last undo data
+        undo_data = self.undo_history.pop()
+
+        success_count = 0
+        error_count = 0
+
+        # Restore original content for each file
+        for filepath, original_content in undo_data.items():
+            try:
+                with open(filepath, 'wb') as f:
+                    f.write(original_content)
+                success_count += 1
+            except Exception as e:
+                error_count += 1
+                print(f"Error restoring {filepath}: {str(e)}")
+
+        # Disable undo button if no more history
+        if not self.undo_history:
+            self.undo_button.config(state=tk.DISABLED)
+
+        # Update status bar
+        self.status_bar.config(text=f"Restored {success_count} file(s)")
 
         # Refresh view
         self.refresh()

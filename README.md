@@ -7,7 +7,8 @@ A Windows Explorer-like Python application for managing and processing XML-based
 - **File Explorer Interface**: Browse directories with subfolder navigation
 - **Subfolder Support**: View and navigate through folder hierarchies, with .pkg file counts shown for each folder
 - **TESTSCRIPT-ID Display**: Automatically extracts and displays `<TESTSCRIPT-ID>` values from XML files
-- **Remove TESTSCRIPT-ID Content**: Batch operation to clear content from `<TESTSCRIPT-ID>` tags
+- **Remove TESTSCRIPT-ID Content**: Instant batch operation to clear content from `<TESTSCRIPT-ID>` tags (no confirmation required)
+- **Undo Support**: Full undo capability with Ctrl+Z to restore files after removal operations
 - **File Operations**: Copy, cut, and paste files with keyboard shortcuts
 - **Clean GUI**: Built with tkinter for cross-platform compatibility
 
@@ -68,14 +69,15 @@ chmod +x pkg_file_explorer.py
    - Click the "Remove TESTSCRIPT-ID" toolbar button, or
    - Use Tools menu → Remove TESTSCRIPT-ID Content, or
    - Right-click → Remove TESTSCRIPT-ID
-   - Confirm the operation
-   - The content inside `<TESTSCRIPT-ID>` tags will be cleared (tags remain)
+   - The content inside `<TESTSCRIPT-ID>` tags will be cleared instantly (tags remain)
+   - Press `Ctrl+Z` or click "↶ Undo" to restore if needed
 
 ### Keyboard Shortcuts
 
 - `Ctrl+C`: Copy selected files
 - `Ctrl+X`: Cut selected files
 - `Ctrl+V`: Paste files
+- `Ctrl+Z`: Undo last TESTSCRIPT-ID removal
 - `F5`: Refresh current directory
 - `Backspace` or `Alt+Up`: Navigate to parent directory
 
@@ -84,7 +86,25 @@ chmod +x pkg_file_explorer.py
 - **↑ Up**: Navigate to parent directory
 - **Browse...**: Open directory browser to select a different folder
 - **Refresh**: Reload the current directory contents
-- **Remove TESTSCRIPT-ID**: Clear TESTSCRIPT-ID content from selected files
+- **Remove TESTSCRIPT-ID**: Clear TESTSCRIPT-ID content from selected files (instant, no confirmation)
+- **↶ Undo**: Restore files from the last TESTSCRIPT-ID removal operation
+
+### Undo Feature
+
+The application includes a powerful undo system for TESTSCRIPT-ID removal operations:
+
+- **No confirmation dialogs**: Remove operations execute instantly for faster workflow
+- **Automatic backup**: Original file content is automatically saved before modification
+- **Easy restoration**: Press `Ctrl+Z` or click the "↶ Undo" button to restore files
+- **Status feedback**: The status bar shows operation results and reminds you about undo availability
+- **Multiple operations**: The undo button remains enabled as long as there are operations to undo
+
+**How it works:**
+1. Select files and click "Remove TESTSCRIPT-ID"
+2. Changes are applied instantly, original content is saved
+3. Status bar shows: "Removed TESTSCRIPT-ID from X file(s). Press Ctrl+Z to undo."
+4. Press `Ctrl+Z` or click "↶ Undo" to restore the original content
+5. The undo button becomes disabled when there's nothing left to undo
 
 ## Testing
 
@@ -106,8 +126,9 @@ To test the application:
 2. Browse to the `sample_pkg_files/` directory
 3. View the TESTSCRIPT-ID values in the file list
 4. Double-click on folders to navigate into subfolders
-5. Test the remove TESTSCRIPT-ID feature on one or more files
-6. Test copy/cut/paste operations across different folders
+5. Test the remove TESTSCRIPT-ID feature on one or more files (instant, no confirmation)
+6. Test the undo feature by pressing Ctrl+Z or clicking the "↶ Undo" button
+7. Test copy/cut/paste operations across different folders
 
 ## File Structure
 

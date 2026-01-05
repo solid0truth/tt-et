@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <TESTSCRIPT-ID xsi:type="string">TS-2024-001</TESTSCRIPT-ID>
+    <Name>Sample Test Package 1</Name>
+    <Description>This is a sample test package for demonstration</Description>
+    <Version>1.0</Version>
+    <TestCases>
+        <TestCase id="TC001">
+            <Name>Login Test</Name>
+            <Steps>
+                <Step>Open application</Step>
+                <Step>Enter credentials</Step>
+                <Step>Click login</Step>
+            </Steps>
+        </TestCase>
+    </TestCases>
+</TestPackage>

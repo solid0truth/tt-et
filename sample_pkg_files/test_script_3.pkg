@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <TESTSCRIPT-ID xsi:type="string">TS-2024-003</TESTSCRIPT-ID>
+    <Name>Sample Test Package 3</Name>
+    <Description>Test package for API validation</Description>
+    <Version>1.5</Version>
+    <TestCases>
+        <TestCase id="TC003">
+            <Name>API Response Test</Name>
+            <Steps>
+                <Step>Send GET request</Step>
+                <Step>Validate status code</Step>
+                <Step>Check response body</Step>
+            </Steps>
+        </TestCase>
+        <TestCase id="TC004">
+            <Name>API Error Handling</Name>
+            <Steps>
+                <Step>Send invalid request</Step>
+                <Step>Verify error response</Step>
+            </Steps>
+        </TestCase>
+    </TestCases>
+</TestPackage>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <TESTSCRIPT-ID xsi:type="string"></TESTSCRIPT-ID>
+    <Name>Empty Test Script ID Package</Name>
+    <Description>This package has an empty TESTSCRIPT-ID tag</Description>
+    <Version>1.0</Version>
+</TestPackage>

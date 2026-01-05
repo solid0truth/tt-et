@@ -5,6 +5,7 @@ A Windows Explorer-like Python application for managing and processing XML-based
 ## Features
 
 - **File Explorer Interface**: Browse directories with subfolder navigation
+- **Editable Directory Path**: Paste or type directory paths directly in the address bar and press Enter
 - **Subfolder Support**: View and navigate through folder hierarchies, with .pkg file counts shown for each folder
 - **TESTSCRIPT-ID Display**: Automatically extracts and displays `<TESTSCRIPT-ID>` values from XML files
 - **Remove TESTSCRIPT-ID Content**: Instant batch operation to clear content from `<TESTSCRIPT-ID>` tags (no confirmation required)
@@ -43,6 +44,7 @@ chmod +x pkg_file_explorer.py
 ### Using the Application
 
 1. **Browse Directories**:
+   - **Paste path directly**: Edit the "Current Directory" field and press Enter to navigate to a path
    - Click "Browse..." button to select a directory containing `.pkg` files
    - Click "↑ Up" button or press Backspace/Alt+Up to navigate to parent directory
    - Double-click ".." to navigate to parent directory

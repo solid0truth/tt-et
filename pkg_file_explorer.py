@@ -64,8 +64,9 @@ class PKGFileExplorer:
         toolbar.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
         ttk.Label(toolbar, text="Current Directory:").pack(side=tk.LEFT, padx=5)
-        self.dir_label = ttk.Label(toolbar, text="", relief=tk.SUNKEN)
-        self.dir_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.dir_entry = ttk.Entry(toolbar)
+        self.dir_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.dir_entry.bind("<Return>", self.on_dir_entry_return)
 
         ttk.Button(toolbar, text="↑ Up", command=self.navigate_up).pack(side=tk.LEFT, padx=2)
         ttk.Button(toolbar, text="Browse...", command=self.change_directory).pack(side=tk.LEFT, padx=2)
@@ -145,7 +146,9 @@ class PKGFileExplorer:
     def load_directory(self, directory: str):
         """Load subdirectories and .pkg files from directory"""
         self.current_dir = directory
-        self.dir_label.config(text=directory)
+        # Update the entry field
+        self.dir_entry.delete(0, tk.END)
+        self.dir_entry.insert(0, directory)
 
         # Clear existing items
         for item in self.tree.get_children():
@@ -291,6 +294,27 @@ class PKGFileExplorer:
             self.load_directory(parent_dir)
         else:
             self.status_bar.config(text="Already at root directory")
+
+    def on_dir_entry_return(self, event):
+        """Handle Enter key press in directory entry field"""
+        directory = self.dir_entry.get().strip()
+
+        if not directory:
+            self.status_bar.config(text="Please enter a directory path")
+            return
+
+        # Expand home directory shortcut
+        if directory.startswith("~"):
+            directory = os.path.expanduser(directory)
+
+        # Check if directory exists and is valid
+        if os.path.isdir(directory):
+            self.load_directory(directory)
+        else:
+            self.status_bar.config(text=f"Invalid directory: {directory}")
+            # Restore current directory in entry field
+            self.dir_entry.delete(0, tk.END)
+            self.dir_entry.insert(0, self.current_dir)
 
     def on_double_click(self, event):
         """Handle double-click on tree item"""

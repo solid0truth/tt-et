@@ -296,10 +296,13 @@ class PKGFileExplorer:
 
     def show_context_menu(self, event):
         """Show context menu"""
-        # Select item under cursor
+        # Get item under cursor
         item = self.tree.identify_row(event.y)
         if item:
-            self.tree.selection_set(item)
+            # If the item is not already selected, select only this item
+            # If it's already selected, keep the current multi-selection
+            if item not in self.tree.selection():
+                self.tree.selection_set(item)
             self.context_menu.post(event.x_root, event.y_root)
 
     def get_selected_files(self) -> List[str]:

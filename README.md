@@ -27,6 +27,34 @@ A Windows Explorer-like Python application for managing and processing XML-based
 pip install -r requirements.txt
 ```
 
+## Building Windows Executable
+
+To create a standalone .exe file that runs without Python installed:
+
+### Quick Build
+
+```bash
+# Install PyInstaller
+pip install pyinstaller
+
+# Run the build script
+python build_windows.py
+```
+
+The executable will be created at `dist/PKGFileExplorer.exe`
+
+### Manual Build
+
+```bash
+pyinstaller --onefile --windowed --name=PKGFileExplorer --hidden-import=lxml.etree pkg_file_explorer.py
+```
+
+For detailed build instructions, troubleshooting, and advanced options, see [BUILD.md](BUILD.md).
+
+### Distribution
+
+Simply copy `dist/PKGFileExplorer.exe` to any Windows computer and run it - no Python installation required!
+
 ## Usage
 
 ### Running the Application

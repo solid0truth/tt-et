@@ -150,6 +150,8 @@ class PKGFileExplorer:
         self.root.bind("<F5>", lambda e: self.refresh())
         self.root.bind("<BackSpace>", lambda e: self.handle_backspace(e))
         self.root.bind("<Alt-Up>", lambda e: self.navigate_up())
+        self.root.bind("<Return>", lambda e: self.handle_enter(e))
+        self.root.bind("<Delete>", lambda e: self.handle_delete(e))
 
     def handle_copy(self, event):
         """Handle Ctrl+C - only for file operations, not text editing"""
@@ -192,6 +194,82 @@ class PKGFileExplorer:
         """Handle Shift+Down key event and prevent default behavior"""
         self.select_next()
         return "break"  # Prevent default treeview behavior
+
+    def handle_enter(self, event):
+        """Handle Enter key - navigate into selected folder"""
+        # Don't interfere if directory entry has focus
+        focused = self.root.focus_get()
+        if focused == self.dir_entry:
+            # Let the Entry widget handle Enter (navigate to typed path)
+            return
+
+        selection = self.tree.selection()
+        if not selection:
+            return
+
+        # Get the first selected item
+        item = selection[0]
+        values = self.tree.item(item, "values")
+        tags = self.tree.item(item, "tags")
+
+        if values and values[0] == "..":
+            # Navigate to parent directory
+            parent_dir = os.path.dirname(self.current_dir)
+            self.load_directory(parent_dir)
+        elif "folder" in tags:
+            # Navigate into subdirectory
+            folder_name = values[0]
+            folder_path = os.path.join(self.current_dir, folder_name)
+            if os.path.isdir(folder_path):
+                self.load_directory(folder_path)
+
+    def handle_delete(self, event):
+        """Handle Delete key - delete selected files with confirmation"""
+        # Don't interfere if directory entry has focus
+        focused = self.root.focus_get()
+        if focused == self.dir_entry:
+            # Let the Entry widget handle text deletion
+            return
+
+        files = self.get_selected_files()
+        if not files:
+            return
+
+        # Show confirmation dialog
+        file_count = len(files)
+        if file_count == 1:
+            message = f"Are you sure you want to delete:\n{os.path.basename(files[0])}?"
+        else:
+            message = f"Are you sure you want to delete {file_count} selected items?"
+
+        result = messagebox.askyesno("Confirm Delete", message)
+
+        if result:
+            # Delete the files
+            deleted_count = 0
+            errors = []
+
+            for file_path in files:
+                try:
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+                        deleted_count += 1
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                        deleted_count += 1
+                except Exception as e:
+                    errors.append(f"{os.path.basename(file_path)}: {str(e)}")
+
+            # Update status
+            if errors:
+                error_msg = "\n".join(errors)
+                messagebox.showerror("Delete Errors", f"Failed to delete some items:\n{error_msg}")
+                self.status_bar.config(text=f"Deleted {deleted_count} item(s), {len(errors)} failed")
+            else:
+                self.status_bar.config(text=f"Deleted {deleted_count} item(s)")
+
+            # Refresh the view
+            self.refresh()
 
     def select_previous(self):
         """Select previous item with Shift+Up (extend selection from anchor)"""
@@ -507,7 +585,7 @@ class PKGFileExplorer:
             self.context_menu.post(event.x_root, event.y_root)
 
     def get_selected_files(self) -> List[str]:
-        """Get list of selected file paths"""
+        """Get list of selected file and folder paths"""
         selected_items = self.tree.selection()
         files = []
 
@@ -515,33 +593,33 @@ class PKGFileExplorer:
             values = self.tree.item(item, "values")
             if values and values[0] != "..":
                 filepath = os.path.join(self.current_dir, values[0])
-                if os.path.isfile(filepath):
+                if os.path.exists(filepath):
                     files.append(filepath)
 
         return files
 
     def copy_files(self):
-        """Copy selected files to clipboard"""
+        """Copy selected files and folders to clipboard"""
         files = self.get_selected_files()
         if files:
             self.clipboard = files
             self.clipboard_operation = "copy"
-            self.status_bar.config(text=f"Copied {len(files)} file(s)")
+            self.status_bar.config(text=f"Copied {len(files)} item(s)")
         else:
-            messagebox.showwarning("Warning", "No files selected")
+            messagebox.showwarning("Warning", "No items selected")
 
     def cut_files(self):
-        """Cut selected files to clipboard"""
+        """Cut selected files and folders to clipboard"""
         files = self.get_selected_files()
         if files:
             self.clipboard = files
             self.clipboard_operation = "cut"
-            self.status_bar.config(text=f"Cut {len(files)} file(s)")
+            self.status_bar.config(text=f"Cut {len(files)} item(s)")
         else:
-            messagebox.showwarning("Warning", "No files selected")
+            messagebox.showwarning("Warning", "No items selected")
 
     def paste_files(self):
-        """Paste files from clipboard"""
+        """Paste files and folders from clipboard"""
         if not self.clipboard:
             messagebox.showwarning("Warning", "Clipboard is empty")
             return
@@ -556,17 +634,23 @@ class PKGFileExplorer:
                     base, ext = os.path.splitext(filename)
                     counter = 1
                     while os.path.exists(dest_file):
-                        filename = f"{base}_copy{counter}{ext}"
+                        if ext:
+                            filename = f"{base}_copy{counter}{ext}"
+                        else:
+                            filename = f"{filename}_copy{counter}"
                         dest_file = os.path.join(self.current_dir, filename)
                         counter += 1
 
                 if self.clipboard_operation == "copy":
-                    shutil.copy2(source_file, dest_file)
+                    if os.path.isdir(source_file):
+                        shutil.copytree(source_file, dest_file)
+                    else:
+                        shutil.copy2(source_file, dest_file)
                 elif self.clipboard_operation == "cut":
                     shutil.move(source_file, dest_file)
 
             operation = "Copied" if self.clipboard_operation == "copy" else "Moved"
-            self.status_bar.config(text=f"{operation} {len(self.clipboard)} file(s)")
+            self.status_bar.config(text=f"{operation} {len(self.clipboard)} item(s)")
 
             # Clear clipboard if cut operation
             if self.clipboard_operation == "cut":
@@ -577,7 +661,7 @@ class PKGFileExplorer:
             self.refresh()
 
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to paste files: {str(e)}")
+            messagebox.showerror("Error", f"Failed to paste: {str(e)}")
 
     def remove_testscript_id(self):
         """Remove <tm-info> tag including TESTSCRIPT-ID from selected files"""
@@ -587,13 +671,20 @@ class PKGFileExplorer:
             self.status_bar.config(text="No files selected")
             return
 
+        # Filter to only .pkg files
+        pkg_files = [f for f in files if os.path.isfile(f) and f.endswith('.pkg')]
+
+        if not pkg_files:
+            self.status_bar.config(text="No .pkg files selected")
+            return
+
         # Store original content for undo
         undo_data = {}
         success_count = 0
         error_count = 0
         errors = []
 
-        for filepath in files:
+        for filepath in pkg_files:
             try:
                 # Read original content
                 with open(filepath, 'rb') as f:

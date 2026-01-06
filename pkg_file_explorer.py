@@ -338,10 +338,11 @@ class PKGFileExplorer:
             tree = etree.parse(filepath)
             root = tree.getroot()
 
-            # Find TESTSCRIPT-ID element (handle namespaces)
+            # Find TESTSCRIPT-ID element (handle namespaces and case variations)
             # Try multiple XPath queries to handle different XML structures
             testscript_elements = root.xpath(
-                "//TESTSCRIPT-ID | //*[local-name()='TESTSCRIPT-ID']"
+                "//TESTSCRIPT-ID | //*[local-name()='TESTSCRIPT-ID'] | "
+                "//testscript-id | //*[local-name()='testscript-id']"
             )
 
             if testscript_elements:
@@ -535,8 +536,9 @@ class PKGFileExplorer:
                 tree = etree.parse(filepath)
                 root = tree.getroot()
 
-                # Find all tm-info elements
+                # Find all TM-INFO/tm-info elements (handle both uppercase and lowercase)
                 tm_info_elements = root.xpath(
+                    "//TM-INFO | //*[local-name()='TM-INFO'] | "
                     "//tm-info | //*[local-name()='tm-info']"
                 )
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <tm-info>
+    <TM-INFO format-rev="1" xsi:type="testManagementInfo">
         <TESTSCRIPT-ID xsi:type="string">TS-2024-003</TESTSCRIPT-ID>
-    </tm-info>
+    </TM-INFO>
     <Name>Sample Test Package 3</Name>
     <Description>Test package for API validation</Description>
     <Version>1.5</Version>

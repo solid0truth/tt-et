@@ -190,32 +190,34 @@ To test the application:
 
 ### XML Structure
 
-The application expects `.pkg` files with XML structure containing a `<tm-info>` tag with nested `<TESTSCRIPT-ID>` element:
+The application expects `.pkg` files with XML structure containing a `<TM-INFO>` tag with nested `<TESTSCRIPT-ID>` element:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <tm-info>
-        <TESTSCRIPT-ID xsi:type="string">TS-2024-001</TESTSCRIPT-ID>
-    </tm-info>
+    <TM-INFO format-rev="1" xsi:type="testManagementInfo">
+        <TESTSCRIPT-ID xsi:type="string">1000</TESTSCRIPT-ID>
+    </TM-INFO>
     <!-- Other elements -->
 </TestPackage>
 ```
 
+**Note:** The application handles both uppercase `<TM-INFO>` and lowercase `<tm-info>` tag variations.
+
 ### Remove tm-info Tag Operation
 
 When you use the "Remove <tm-info>" feature:
-- The application finds all `<tm-info>` tags in selected files
+- The application finds all `<TM-INFO>` or `<tm-info>` tags in selected files (case-insensitive)
 - Removes the entire tag including all nested elements (like `<TESTSCRIPT-ID>`)
-- Preserves all other XML structure
+- Preserves all other XML structure and attributes
 - Writes the modified XML back to the file
 
 **Before:**
 ```xml
 <TestPackage>
-    <tm-info>
-        <TESTSCRIPT-ID xsi:type="string">TS-2024-001</TESTSCRIPT-ID>
-    </tm-info>
+    <TM-INFO format-rev="1" xsi:type="testManagementInfo">
+        <TESTSCRIPT-ID xsi:type="string">1000</TESTSCRIPT-ID>
+    </TM-INFO>
     <Name>Sample Test</Name>
 </TestPackage>
 ```

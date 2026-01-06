@@ -25,6 +25,9 @@ class PKGFileExplorer:
         # Undo history for TESTSCRIPT-ID removal
         self.undo_history: List[Dict[str, str]] = []  # List of {filepath: original_content}
 
+        # Selection anchor for Shift+Up/Down
+        self.selection_anchor = None
+
         # Current directory
         self.current_dir = os.path.expanduser("~")
 
@@ -132,6 +135,7 @@ class PKGFileExplorer:
 
         self.tree.bind("<Button-3>", self.show_context_menu)
         self.tree.bind("<Double-1>", self.on_double_click)
+        self.tree.bind("<Button-1>", self.on_single_click)
 
     def setup_shortcuts(self):
         """Setup keyboard shortcuts"""
@@ -178,60 +182,100 @@ class PKGFileExplorer:
         self.navigate_up()
 
     def select_previous(self):
-        """Select previous item with Shift+Up (extend selection)"""
+        """Select previous item with Shift+Up (extend selection from anchor)"""
         # Don't interfere if directory entry has focus
         if self.root.focus_get() == self.dir_entry:
             return
 
         selection = self.tree.selection()
-        if not selection:
-            # No selection, select first item
-            items = self.tree.get_children()
-            if items:
-                self.tree.selection_set(items[0])
-                self.tree.focus(items[0])
-                self.tree.see(items[0])
+        all_items = self.tree.get_children()
+
+        if not all_items:
             return
 
-        # Get the last selected item (most recent)
-        current_item = selection[-1]
+        if not selection:
+            # No selection, select first item
+            self.tree.selection_set(all_items[0])
+            self.tree.focus(all_items[0])
+            self.tree.see(all_items[0])
+            self.selection_anchor = all_items[0]
+            return
 
-        # Get previous item
-        prev_item = self.tree.prev(current_item)
+        # Set anchor if not already set
+        if not self.selection_anchor or self.selection_anchor not in all_items:
+            self.selection_anchor = selection[0]
 
-        if prev_item:
-            # Add previous item to selection
-            self.tree.selection_add(prev_item)
-            self.tree.focus(prev_item)
-            self.tree.see(prev_item)
+        # Get focused item (where we currently are)
+        focused_item = self.tree.focus()
+        if not focused_item:
+            focused_item = selection[-1]
+
+        # Find indices
+        try:
+            anchor_idx = all_items.index(self.selection_anchor)
+            focused_idx = all_items.index(focused_item)
+        except ValueError:
+            return
+
+        # Move up one position
+        new_focused_idx = max(0, focused_idx - 1)
+
+        # Select range from anchor to new position
+        start_idx = min(anchor_idx, new_focused_idx)
+        end_idx = max(anchor_idx, new_focused_idx)
+
+        # Clear selection and select the range
+        self.tree.selection_set([all_items[i] for i in range(start_idx, end_idx + 1)])
+        self.tree.focus(all_items[new_focused_idx])
+        self.tree.see(all_items[new_focused_idx])
 
     def select_next(self):
-        """Select next item with Shift+Down (extend selection)"""
+        """Select next item with Shift+Down (extend selection from anchor)"""
         # Don't interfere if directory entry has focus
         if self.root.focus_get() == self.dir_entry:
             return
 
         selection = self.tree.selection()
-        if not selection:
-            # No selection, select first item
-            items = self.tree.get_children()
-            if items:
-                self.tree.selection_set(items[0])
-                self.tree.focus(items[0])
-                self.tree.see(items[0])
+        all_items = self.tree.get_children()
+
+        if not all_items:
             return
 
-        # Get the last selected item (most recent)
-        current_item = selection[-1]
+        if not selection:
+            # No selection, select first item
+            self.tree.selection_set(all_items[0])
+            self.tree.focus(all_items[0])
+            self.tree.see(all_items[0])
+            self.selection_anchor = all_items[0]
+            return
 
-        # Get next item
-        next_item = self.tree.next(current_item)
+        # Set anchor if not already set
+        if not self.selection_anchor or self.selection_anchor not in all_items:
+            self.selection_anchor = selection[0]
 
-        if next_item:
-            # Add next item to selection
-            self.tree.selection_add(next_item)
-            self.tree.focus(next_item)
-            self.tree.see(next_item)
+        # Get focused item (where we currently are)
+        focused_item = self.tree.focus()
+        if not focused_item:
+            focused_item = selection[-1]
+
+        # Find indices
+        try:
+            anchor_idx = all_items.index(self.selection_anchor)
+            focused_idx = all_items.index(focused_item)
+        except ValueError:
+            return
+
+        # Move down one position
+        new_focused_idx = min(len(all_items) - 1, focused_idx + 1)
+
+        # Select range from anchor to new position
+        start_idx = min(anchor_idx, new_focused_idx)
+        end_idx = max(anchor_idx, new_focused_idx)
+
+        # Clear selection and select the range
+        self.tree.selection_set([all_items[i] for i in range(start_idx, end_idx + 1)])
+        self.tree.focus(all_items[new_focused_idx])
+        self.tree.see(all_items[new_focused_idx])
 
     def load_directory(self, directory: str):
         """Load subdirectories and .pkg files from directory"""
@@ -243,6 +287,9 @@ class PKGFileExplorer:
         # Clear existing items
         for item in self.tree.get_children():
             self.tree.delete(item)
+
+        # Reset selection anchor since items changed
+        self.selection_anchor = None
 
         try:
             # Add parent directory option
@@ -406,6 +453,14 @@ class PKGFileExplorer:
             # Restore current directory in entry field
             self.dir_entry.delete(0, tk.END)
             self.dir_entry.insert(0, self.current_dir)
+
+    def on_single_click(self, event):
+        """Handle single click - reset selection anchor for Shift+Up/Down"""
+        # Get the clicked item
+        item = self.tree.identify_row(event.y)
+        if item:
+            # Set this as the new anchor for shift-selection
+            self.selection_anchor = item
 
     def on_double_click(self, event):
         """Handle double-click on tree item"""

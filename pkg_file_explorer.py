@@ -135,13 +135,45 @@ class PKGFileExplorer:
 
     def setup_shortcuts(self):
         """Setup keyboard shortcuts"""
-        self.root.bind("<Control-c>", lambda e: self.copy_files())
-        self.root.bind("<Control-x>", lambda e: self.cut_files())
-        self.root.bind("<Control-v>", lambda e: self.paste_files())
+        self.root.bind("<Control-c>", lambda e: self.handle_copy(e))
+        self.root.bind("<Control-x>", lambda e: self.handle_cut(e))
+        self.root.bind("<Control-v>", lambda e: self.handle_paste(e))
         self.root.bind("<Control-z>", lambda e: self.undo())
         self.root.bind("<F5>", lambda e: self.refresh())
-        self.root.bind("<BackSpace>", lambda e: self.navigate_up())
+        self.root.bind("<BackSpace>", lambda e: self.handle_backspace(e))
         self.root.bind("<Alt-Up>", lambda e: self.navigate_up())
+
+    def handle_copy(self, event):
+        """Handle Ctrl+C - only for file operations, not text editing"""
+        focused = self.root.focus_get()
+        if focused == self.dir_entry:
+            # Let the Entry widget handle text copying
+            return
+        self.copy_files()
+
+    def handle_cut(self, event):
+        """Handle Ctrl+X - only for file operations, not text editing"""
+        focused = self.root.focus_get()
+        if focused == self.dir_entry:
+            # Let the Entry widget handle text cutting
+            return
+        self.cut_files()
+
+    def handle_paste(self, event):
+        """Handle Ctrl+V - only for file operations, not text editing"""
+        focused = self.root.focus_get()
+        if focused == self.dir_entry:
+            # Let the Entry widget handle text pasting
+            return
+        self.paste_files()
+
+    def handle_backspace(self, event):
+        """Handle Backspace - only for navigation, not text editing"""
+        focused = self.root.focus_get()
+        if focused == self.dir_entry:
+            # Let the Entry widget handle text deletion
+            return
+        self.navigate_up()
 
     def load_directory(self, directory: str):
         """Load subdirectories and .pkg files from directory"""

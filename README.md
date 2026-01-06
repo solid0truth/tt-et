@@ -88,6 +88,7 @@ chmod +x pkg_file_explorer.py
    - Click to select a single file
    - Ctrl+Click to select multiple files
    - Shift+Click to select a range of files
+   - Shift+Up/Down arrows to extend selection to adjacent files
 
 4. **File Operations**:
    - **Copy**: Select files and press `Ctrl+C` or use Edit menu
@@ -110,6 +111,8 @@ chmod +x pkg_file_explorer.py
 - `Ctrl+Z`: Undo last tm-info tag removal
 - `F5`: Refresh current directory
 - `Backspace` or `Alt+Up`: Navigate to parent directory
+- `Shift+Up`: Extend selection to previous file
+- `Shift+Down`: Extend selection to next file
 
 ### Toolbar Buttons
 

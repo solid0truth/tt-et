@@ -142,6 +142,8 @@ class PKGFileExplorer:
         self.root.bind("<F5>", lambda e: self.refresh())
         self.root.bind("<BackSpace>", lambda e: self.handle_backspace(e))
         self.root.bind("<Alt-Up>", lambda e: self.navigate_up())
+        self.root.bind("<Shift-Up>", lambda e: self.select_previous())
+        self.root.bind("<Shift-Down>", lambda e: self.select_next())
 
     def handle_copy(self, event):
         """Handle Ctrl+C - only for file operations, not text editing"""
@@ -174,6 +176,62 @@ class PKGFileExplorer:
             # Let the Entry widget handle text deletion
             return
         self.navigate_up()
+
+    def select_previous(self):
+        """Select previous item with Shift+Up (extend selection)"""
+        # Don't interfere if directory entry has focus
+        if self.root.focus_get() == self.dir_entry:
+            return
+
+        selection = self.tree.selection()
+        if not selection:
+            # No selection, select first item
+            items = self.tree.get_children()
+            if items:
+                self.tree.selection_set(items[0])
+                self.tree.focus(items[0])
+                self.tree.see(items[0])
+            return
+
+        # Get the last selected item (most recent)
+        current_item = selection[-1]
+
+        # Get previous item
+        prev_item = self.tree.prev(current_item)
+
+        if prev_item:
+            # Add previous item to selection
+            self.tree.selection_add(prev_item)
+            self.tree.focus(prev_item)
+            self.tree.see(prev_item)
+
+    def select_next(self):
+        """Select next item with Shift+Down (extend selection)"""
+        # Don't interfere if directory entry has focus
+        if self.root.focus_get() == self.dir_entry:
+            return
+
+        selection = self.tree.selection()
+        if not selection:
+            # No selection, select first item
+            items = self.tree.get_children()
+            if items:
+                self.tree.selection_set(items[0])
+                self.tree.focus(items[0])
+                self.tree.see(items[0])
+            return
+
+        # Get the last selected item (most recent)
+        current_item = selection[-1]
+
+        # Get next item
+        next_item = self.tree.next(current_item)
+
+        if next_item:
+            # Add next item to selection
+            self.tree.selection_add(next_item)
+            self.tree.focus(next_item)
+            self.tree.see(next_item)
 
     def load_directory(self, directory: str):
         """Load subdirectories and .pkg files from directory"""

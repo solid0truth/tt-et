@@ -137,6 +137,10 @@ class PKGFileExplorer:
         self.tree.bind("<Double-1>", self.on_double_click)
         self.tree.bind("<Button-1>", self.on_single_click)
 
+        # Bind Shift+Up/Down directly to tree to override default behavior
+        self.tree.bind("<Shift-Up>", self.handle_shift_up)
+        self.tree.bind("<Shift-Down>", self.handle_shift_down)
+
     def setup_shortcuts(self):
         """Setup keyboard shortcuts"""
         self.root.bind("<Control-c>", lambda e: self.handle_copy(e))
@@ -146,8 +150,6 @@ class PKGFileExplorer:
         self.root.bind("<F5>", lambda e: self.refresh())
         self.root.bind("<BackSpace>", lambda e: self.handle_backspace(e))
         self.root.bind("<Alt-Up>", lambda e: self.navigate_up())
-        self.root.bind("<Shift-Up>", lambda e: self.select_previous() or "break")
-        self.root.bind("<Shift-Down>", lambda e: self.select_next() or "break")
 
     def handle_copy(self, event):
         """Handle Ctrl+C - only for file operations, not text editing"""
@@ -180,6 +182,16 @@ class PKGFileExplorer:
             # Let the Entry widget handle text deletion
             return
         self.navigate_up()
+
+    def handle_shift_up(self, event):
+        """Handle Shift+Up key event and prevent default behavior"""
+        self.select_previous()
+        return "break"  # Prevent default treeview behavior
+
+    def handle_shift_down(self, event):
+        """Handle Shift+Down key event and prevent default behavior"""
+        self.select_next()
+        return "break"  # Prevent default treeview behavior
 
     def select_previous(self):
         """Select previous item with Shift+Up (extend selection from anchor)"""

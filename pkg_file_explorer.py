@@ -523,6 +523,7 @@ class PKGFileExplorer:
         undo_data = {}
         success_count = 0
         error_count = 0
+        errors = []
 
         for filepath in files:
             try:
@@ -559,21 +560,31 @@ class PKGFileExplorer:
                     success_count += 1
                 else:
                     error_count += 1
+                    errors.append(f"{os.path.basename(filepath)}: No <tm-info> tag found")
 
             except Exception as e:
                 error_count += 1
-                print(f"Error processing {filepath}: {str(e)}")
+                error_msg = str(e)
+                errors.append(f"{os.path.basename(filepath)}: {error_msg}")
+                print(f"Error processing {filepath}: {error_msg}")
 
         # Save undo data if we made changes
         if undo_data:
             self.undo_history.append(undo_data)
             self.undo_button.config(state=tk.NORMAL)
 
-        # Update status bar
+        # Update status bar with detailed feedback
         if success_count > 0:
             self.status_bar.config(text=f"Removed <tm-info> tag from {success_count} file(s). Press Ctrl+Z to undo.")
+        elif errors:
+            # Show first error in status bar
+            self.status_bar.config(text=f"Failed: {errors[0]}")
+            # Print all errors to console for debugging
+            print("\nErrors during tm-info removal:")
+            for error in errors:
+                print(f"  - {error}")
         else:
-            self.status_bar.config(text=f"No <tm-info> tag found in selected files")
+            self.status_bar.config(text=f"No files to process")
 
         # Refresh view
         self.refresh()

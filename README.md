@@ -86,9 +86,12 @@ chmod +x pkg_file_explorer.py
 
 3. **Select Files**:
    - Click to select a single file
-   - Ctrl+Click to select multiple files
+   - Ctrl+Click to select multiple non-adjacent files
    - Shift+Click to select a range of files
    - Shift+Up/Down arrows to extend selection to adjacent files
+     * Each press adds one more file to the selection
+     * Example: Shift+Down twice adds 2 files below current selection
+     * Works like Windows Explorer
 
 4. **File Operations**:
    - **Copy**: Select files and press `Ctrl+C` or use Edit menu

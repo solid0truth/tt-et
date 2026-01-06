@@ -8,7 +8,7 @@ A Windows Explorer-like Python application for managing and processing XML-based
 - **Editable Directory Path**: Paste or type directory paths directly in the address bar and press Enter
 - **Subfolder Support**: View and navigate through folder hierarchies, with .pkg file counts shown for each folder
 - **TESTSCRIPT-ID Display**: Automatically extracts and displays `<TESTSCRIPT-ID>` values from XML files
-- **Remove TESTSCRIPT-ID Content**: Instant batch operation to clear content from `<TESTSCRIPT-ID>` tags (no confirmation required)
+- **Remove tm-info Tag**: Instant batch operation to remove entire `<tm-info>` tag including `<TESTSCRIPT-ID>` (no confirmation required)
 - **Undo Support**: Full undo capability with Ctrl+Z to restore files after removal operations
 - **File Operations**: Copy, cut, and paste files with keyboard shortcuts
 - **Clean GUI**: Built with tkinter for cross-platform compatibility
@@ -94,12 +94,12 @@ chmod +x pkg_file_explorer.py
    - **Cut**: Select files and press `Ctrl+X` or use Edit menu
    - **Paste**: Navigate to destination and press `Ctrl+V` or use Edit menu
 
-5. **Remove TESTSCRIPT-ID Content**:
+5. **Remove tm-info Tag**:
    - Select one or more `.pkg` files
-   - Click the "Remove TESTSCRIPT-ID" toolbar button, or
-   - Use Tools menu → Remove TESTSCRIPT-ID Content, or
-   - Right-click → Remove TESTSCRIPT-ID
-   - The content inside `<TESTSCRIPT-ID>` tags will be cleared instantly (tags remain)
+   - Click the "Remove <tm-info>" toolbar button, or
+   - Use Tools menu → Remove <tm-info> Tag, or
+   - Right-click → Remove <tm-info>
+   - The entire `<tm-info>` tag (including `<TESTSCRIPT-ID>`) will be removed instantly
    - Press `Ctrl+Z` or click "↶ Undo" to restore if needed
 
 ### Keyboard Shortcuts
@@ -107,7 +107,7 @@ chmod +x pkg_file_explorer.py
 - `Ctrl+C`: Copy selected files
 - `Ctrl+X`: Cut selected files
 - `Ctrl+V`: Paste files
-- `Ctrl+Z`: Undo last TESTSCRIPT-ID removal
+- `Ctrl+Z`: Undo last tm-info tag removal
 - `F5`: Refresh current directory
 - `Backspace` or `Alt+Up`: Navigate to parent directory
 
@@ -116,12 +116,12 @@ chmod +x pkg_file_explorer.py
 - **↑ Up**: Navigate to parent directory
 - **Browse...**: Open directory browser to select a different folder
 - **Refresh**: Reload the current directory contents
-- **Remove TESTSCRIPT-ID**: Clear TESTSCRIPT-ID content from selected files (instant, no confirmation)
-- **↶ Undo**: Restore files from the last TESTSCRIPT-ID removal operation
+- **Remove <tm-info>**: Remove entire tm-info tag from selected files (instant, no confirmation)
+- **↶ Undo**: Restore files from the last tm-info tag removal operation
 
 ### Undo Feature
 
-The application includes a powerful undo system for TESTSCRIPT-ID removal operations:
+The application includes a powerful undo system for tm-info tag removal operations:
 
 - **No confirmation dialogs**: Remove operations execute instantly for faster workflow
 - **Automatic backup**: Original file content is automatically saved before modification
@@ -130,9 +130,9 @@ The application includes a powerful undo system for TESTSCRIPT-ID removal operat
 - **Multiple operations**: The undo button remains enabled as long as there are operations to undo
 
 **How it works:**
-1. Select files and click "Remove TESTSCRIPT-ID"
+1. Select files and click "Remove <tm-info>"
 2. Changes are applied instantly, original content is saved
-3. Status bar shows: "Removed TESTSCRIPT-ID from X file(s). Press Ctrl+Z to undo."
+3. Status bar shows: "Removed <tm-info> tag from X file(s). Press Ctrl+Z to undo."
 4. Press `Ctrl+Z` or click "↶ Undo" to restore the original content
 5. The undo button becomes disabled when there's nothing left to undo
 
@@ -156,7 +156,7 @@ To test the application:
 2. Browse to the `sample_pkg_files/` directory
 3. View the TESTSCRIPT-ID values in the file list
 4. Double-click on folders to navigate into subfolders
-5. Test the remove TESTSCRIPT-ID feature on one or more files (instant, no confirmation)
+5. Test the remove tm-info tag feature on one or more files (instant, no confirmation)
 6. Test the undo feature by pressing Ctrl+Z or clicking the "↶ Undo" button
 7. Test copy/cut/paste operations across different folders
 
@@ -184,32 +184,41 @@ To test the application:
 
 ### XML Structure
 
-The application expects `.pkg` files with XML structure containing a `<TESTSCRIPT-ID>` element:
+The application expects `.pkg` files with XML structure containing a `<tm-info>` tag with nested `<TESTSCRIPT-ID>` element:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <TESTSCRIPT-ID xsi:type="string">TS-2024-001</TESTSCRIPT-ID>
+    <tm-info>
+        <TESTSCRIPT-ID xsi:type="string">TS-2024-001</TESTSCRIPT-ID>
+    </tm-info>
     <!-- Other elements -->
 </TestPackage>
 ```
 
-### Remove TESTSCRIPT-ID Operation
+### Remove tm-info Tag Operation
 
-When you use the "Remove TESTSCRIPT-ID Content" feature:
-- The application finds all `<TESTSCRIPT-ID>` tags in selected files
-- Clears the text content (sets to empty string)
-- Preserves the XML tags and attributes
+When you use the "Remove <tm-info>" feature:
+- The application finds all `<tm-info>` tags in selected files
+- Removes the entire tag including all nested elements (like `<TESTSCRIPT-ID>`)
+- Preserves all other XML structure
 - Writes the modified XML back to the file
 
 **Before:**
 ```xml
-<TESTSCRIPT-ID xsi:type="string">TS-2024-001</TESTSCRIPT-ID>
+<TestPackage>
+    <tm-info>
+        <TESTSCRIPT-ID xsi:type="string">TS-2024-001</TESTSCRIPT-ID>
+    </tm-info>
+    <Name>Sample Test</Name>
+</TestPackage>
 ```
 
 **After:**
 ```xml
-<TESTSCRIPT-ID xsi:type="string"></TESTSCRIPT-ID>
+<TestPackage>
+    <Name>Sample Test</Name>
+</TestPackage>
 ```
 
 ## Dependencies

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <TESTSCRIPT-ID xsi:type="string">TS-NESTED-001</TESTSCRIPT-ID>
+    <tm-info>
+        <TESTSCRIPT-ID xsi:type="string">TS-NESTED-001</TESTSCRIPT-ID>
+    </tm-info>
     <Name>Nested Folder Test Package</Name>
     <Description>Test package in nested folder</Description>
     <Version>3.0</Version>

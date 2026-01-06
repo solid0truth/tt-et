@@ -57,7 +57,7 @@ class PKGFileExplorer:
 
         tools_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Tools", menu=tools_menu)
-        tools_menu.add_command(label="Remove TESTSCRIPT-ID Content", command=self.remove_testscript_id)
+        tools_menu.add_command(label="Remove <tm-info> Tag", command=self.remove_testscript_id)
 
         # Toolbar
         toolbar = ttk.Frame(self.root)
@@ -71,7 +71,7 @@ class PKGFileExplorer:
         ttk.Button(toolbar, text="↑ Up", command=self.navigate_up).pack(side=tk.LEFT, padx=2)
         ttk.Button(toolbar, text="Browse...", command=self.change_directory).pack(side=tk.LEFT, padx=2)
         ttk.Button(toolbar, text="Refresh", command=self.refresh).pack(side=tk.LEFT, padx=2)
-        ttk.Button(toolbar, text="Remove TESTSCRIPT-ID", command=self.remove_testscript_id).pack(side=tk.LEFT, padx=2)
+        ttk.Button(toolbar, text="Remove <tm-info>", command=self.remove_testscript_id).pack(side=tk.LEFT, padx=2)
         self.undo_button = ttk.Button(toolbar, text="↶ Undo", command=self.undo, state=tk.DISABLED)
         self.undo_button.pack(side=tk.LEFT, padx=2)
 
@@ -128,7 +128,7 @@ class PKGFileExplorer:
         self.context_menu.add_command(label="Cut", command=self.cut_files)
         self.context_menu.add_command(label="Paste", command=self.paste_files)
         self.context_menu.add_separator()
-        self.context_menu.add_command(label="Remove TESTSCRIPT-ID", command=self.remove_testscript_id)
+        self.context_menu.add_command(label="Remove <tm-info>", command=self.remove_testscript_id)
 
         self.tree.bind("<Button-3>", self.show_context_menu)
         self.tree.bind("<Double-1>", self.on_double_click)
@@ -422,7 +422,7 @@ class PKGFileExplorer:
             messagebox.showerror("Error", f"Failed to paste files: {str(e)}")
 
     def remove_testscript_id(self):
-        """Remove content from TESTSCRIPT-ID tags in selected files"""
+        """Remove <tm-info> tag including TESTSCRIPT-ID from selected files"""
         files = self.get_selected_files()
 
         if not files:
@@ -444,18 +444,20 @@ class PKGFileExplorer:
                 tree = etree.parse(filepath)
                 root = tree.getroot()
 
-                # Find all TESTSCRIPT-ID elements
-                testscript_elements = root.xpath(
-                    "//TESTSCRIPT-ID | //*[local-name()='TESTSCRIPT-ID']"
+                # Find all tm-info elements
+                tm_info_elements = root.xpath(
+                    "//tm-info | //*[local-name()='tm-info']"
                 )
 
-                if testscript_elements:
+                if tm_info_elements:
                     # Save original content for this file
                     undo_data[filepath] = original_content
 
-                    for element in testscript_elements:
-                        # Clear the text content
-                        element.text = ""
+                    for element in tm_info_elements:
+                        # Remove the entire tm-info element from its parent
+                        parent = element.getparent()
+                        if parent is not None:
+                            parent.remove(element)
 
                     # Write back to file
                     tree.write(
@@ -479,9 +481,9 @@ class PKGFileExplorer:
 
         # Update status bar
         if success_count > 0:
-            self.status_bar.config(text=f"Removed TESTSCRIPT-ID from {success_count} file(s). Press Ctrl+Z to undo.")
+            self.status_bar.config(text=f"Removed <tm-info> tag from {success_count} file(s). Press Ctrl+Z to undo.")
         else:
-            self.status_bar.config(text=f"No TESTSCRIPT-ID found in selected files")
+            self.status_bar.config(text=f"No <tm-info> tag found in selected files")
 
         # Refresh view
         self.refresh()

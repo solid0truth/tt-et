@@ -464,6 +464,15 @@ class PKGFileExplorer:
 
             self.status_bar.config(text=f"Loaded {len(directories)} folders and {len(pkg_files)} .pkg files from {directory}")
 
+            # Select first item by default
+            all_items = self.tree.get_children()
+            if all_items:
+                first_item = all_items[0]
+                self.tree.selection_set(first_item)
+                self.tree.focus(first_item)
+                self.tree.see(first_item)
+                self.selection_anchor = first_item
+
         except PermissionError:
             messagebox.showerror("Error", f"Permission denied: {directory}")
         except Exception as e:

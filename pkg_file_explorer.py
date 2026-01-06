@@ -291,8 +291,11 @@ class PKGFileExplorer:
             self.selection_anchor = all_items[0]
             return
 
-        # Set anchor if not already set
-        if not self.selection_anchor or self.selection_anchor not in all_items:
+        # If only one item selected, use it as the new anchor (starting a new shift-selection)
+        if len(selection) == 1:
+            self.selection_anchor = selection[0]
+        # Otherwise, keep existing anchor if valid
+        elif not self.selection_anchor or self.selection_anchor not in all_items:
             self.selection_anchor = selection[0]
 
         # Get focused item (where we currently are)
@@ -339,8 +342,11 @@ class PKGFileExplorer:
             self.selection_anchor = all_items[0]
             return
 
-        # Set anchor if not already set
-        if not self.selection_anchor or self.selection_anchor not in all_items:
+        # If only one item selected, use it as the new anchor (starting a new shift-selection)
+        if len(selection) == 1:
+            self.selection_anchor = selection[0]
+        # Otherwise, keep existing anchor if valid
+        elif not self.selection_anchor or self.selection_anchor not in all_items:
             self.selection_anchor = selection[0]
 
         # Get focused item (where we currently are)

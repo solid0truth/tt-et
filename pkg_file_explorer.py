@@ -142,8 +142,8 @@ class PKGFileExplorer:
         self.root.bind("<F5>", lambda e: self.refresh())
         self.root.bind("<BackSpace>", lambda e: self.handle_backspace(e))
         self.root.bind("<Alt-Up>", lambda e: self.navigate_up())
-        self.root.bind("<Shift-Up>", lambda e: self.select_previous())
-        self.root.bind("<Shift-Down>", lambda e: self.select_next())
+        self.root.bind("<Shift-Up>", lambda e: self.select_previous() or "break")
+        self.root.bind("<Shift-Down>", lambda e: self.select_next() or "break")
 
     def handle_copy(self, event):
         """Handle Ctrl+C - only for file operations, not text editing"""
